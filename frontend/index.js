@@ -41,7 +41,22 @@ function open_redirect() {
     const redirectUrl = urlParams.get('redirect');
     console.log('Redirect URL received:', redirectUrl);
     if (redirectUrl) {
-        if (isValidUrl(redirectUrl)) {
+        // Only allow relative paths (internal redirects) or URLs on an allowed whitelist
+        const ALLOWED_ORIGINS = ['https://yourdomain.com', 'http://localhost:3000']; // adjust to your trusted origins
+        let valid = false;
+        try {
+            // Allow only relative URLs that start with '/' but not '//'
+            if (redirectUrl.startsWith('/') && !redirectUrl.startsWith('//')) {
+                valid = true;
+            } else {
+                const dest = new URL(redirectUrl, window.location.origin);
+                // Allow if destination's origin is explicitly trusted (e.g., for multi-domain setups)
+                if (ALLOWED_ORIGINS.includes(dest.origin)) valid = true;
+            }
+        } catch (e) {
+            valid = false;
+        }
+        if (valid) {
             console.log('Redirecting to:', redirectUrl);
             window.location.href = redirectUrl; // Redirecting based on user input can lead to phishing attacks
         } else {
