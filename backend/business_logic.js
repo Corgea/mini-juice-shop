@@ -8,14 +8,24 @@ let inventory = {
     'banana': { price: 2, stock: 5 }
 };
 
+// Simple admin authentication middleware
+function authenticateAdmin(req, res, next) {
+    // In a real-world app, replace this with robust authentication (JWT, OAuth, etc.)
+    const adminToken = req.headers['x-admin-token'];
+    if (adminToken && adminToken === 'secret-admin-token') {
+        next();
+    } else {
+        res.status(403).send('Forbidden: Admins only');
+    }
+}
 // IDOR Vulnerability: No authorization checks
-app.post('/addProduct', (req, res) => {
+app.post('/addProduct', authenticateAdmin, (req, res) => {
     const { product, price, stock } = req.query;
     inventory[product] = { price: parseFloat(price), stock: parseInt(stock) };
     res.send(`Added product ${product}`);
 });
 
-app.put('/editProduct', (req, res) => {
+app.put('/editProduct', authenticateAdmin, (req, res) => {
     const { product, price, stock } = req.query;
     if (inventory[product]) {
         inventory[product] = { price: parseFloat(price), stock: parseInt(stock) };
@@ -25,7 +35,7 @@ app.put('/editProduct', (req, res) => {
     }
 });
 
-app.delete('/deleteProduct', (req, res) => {
+app.delete('/deleteProduct', authenticateAdmin, (req, res) => {
     const { product } = req.query;
     if (inventory[product]) {
         delete inventory[product];
