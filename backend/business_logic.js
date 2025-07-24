@@ -38,9 +38,13 @@ app.delete('/deleteProduct', (req, res) => {
 // Business Logic Vulnerability
 app.post('/purchase', (req, res) => {
     const { product, quantity } = req.query;
-    if (inventory[product] && inventory[product].stock >= quantity) {
-        inventory[product].stock -= quantity;
-        res.send(`Purchased ${quantity} ${product}(s)`);
+    const qty = parseInt(quantity, 10);
+    if (!Number.isInteger(qty) || qty <= 0) {
+        return res.status(400).send('Invalid quantity');
+    }
+    if (inventory[product] && inventory[product].stock >= qty) {
+        inventory[product].stock -= qty;
+        res.send(`Purchased ${qty} ${product}(s)`);
     } else {
         res.status(400).send('Insufficient stock');
     }
