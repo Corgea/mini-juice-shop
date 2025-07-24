@@ -20,7 +20,7 @@ function vulnerable_localStorage() {
     // Example of insecurely storing sensitive data with a warning
     const sensitiveData = '12345';
     console.warn('Storing sensitive data in localStorage is insecure!');
-    localStorage.setItem('userToken', sensitiveData);
+    // localStorage.setItem('userToken', sensitiveData); // Removed insecure storage of sensitive data
     console.log('Sensitive data stored in localStorage:', sensitiveData);
 }
 
