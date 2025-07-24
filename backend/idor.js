@@ -21,10 +21,18 @@ app.post('/login', (req, res) => {
 
 // Insecure Direct Object Reference (IDOR) vulnerability
 app.get('/user/:id', (req, res) => {
-    const userId = req.params.id;
-    const user = users[userId];
+    // Simulate authentication: get user ID from a header (e.g., X-User-Id)
+    const requesterId = req.header('X-User-Id');
+    const requestedId = req.params.id;
+    if (!requesterId) {
+        return res.status(401).send('Authentication required');
+    }
+    if (requesterId !== requestedId) {
+        return res.status(403).send('Forbidden: You are not allowed to access this user\'s data');
+    }
+    const user = users[requesterId];
     if (user) {
-        res.json(user); // No authorization check
+        res.json(user); // Authorized access
     } else {
         res.status(404).send('User not found');
     }
